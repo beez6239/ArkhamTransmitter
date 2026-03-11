@@ -47,14 +47,14 @@ namespace Alerter.TelegramAlerter
     {
         public static void RegisterTelegramAlerter(this WebApplication app)
         {
-            app.MapGet("/AlertReceiver", async ([FromServices] ITeleAlerter alerter, string content) =>
+            app.MapPost("/AlertReceiver", async ([FromServices] ITeleAlerter alerter, HttpRequest request) =>
             {
+                if (!request.Headers.TryGetValue("Arkham-Webhook-Token", out var A)) return Results.Unauthorized();
+                using var sw = new StreamReader(request.Body);
+                var content = await sw.ReadToEndAsync();
+                if(string.IsNullOrWhiteSpace(content)) return Results.BadRequest();
                 var result = await alerter.SendTelegram(content);
-                if (result)
-                {
-                    return Results.Json("sent");
-                }
-                return Results.BadRequest();
+                return result ? Results.Ok() : Results.BadRequest();
             });
         }
     }
