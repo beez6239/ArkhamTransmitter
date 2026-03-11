@@ -14,4 +14,6 @@ var app = builder.Build();
 
 
 app.RegisterTelegramAlerter();
-app.Run();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+app.Run($"http://0.0.0.0:{port}");
