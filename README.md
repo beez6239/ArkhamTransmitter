@@ -1,2 +1,2 @@
 # ArkhamTransmitter
-minimum api service for tracking arkham alerts
+minimum api service for tracking arkham whales
