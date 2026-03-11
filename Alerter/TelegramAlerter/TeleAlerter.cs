@@ -32,6 +32,7 @@ namespace Alerter.TelegramAlerter
             try
             {
                 var result = await _alertservice.SendToTelegram(_options, content);
+                _logger.LogInformation(content);
                 return result;
             }
             catch (Exception ex)

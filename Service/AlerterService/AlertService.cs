@@ -100,7 +100,7 @@ namespace AlerterService
 
             // Final message
             string messageText = $@"
-            {directionEmoji} <b>{actionText}</b>
+            {directionEmoji} <b>{arkhamResponse.AlertName}</b>
             <b>From:</b> {fromAddresses} and others
             <b>To:</b> {toAddresses}
             <b>Value:</b> {valueText}
