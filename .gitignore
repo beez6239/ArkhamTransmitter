@@ -1,0 +1,6 @@
+*.txt
+*.json
+*bin
+*obj
+*.DS_Store
+*.qodo
