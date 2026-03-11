@@ -18,17 +18,28 @@ namespace Alerter.TelegramAlerter
     public class TeleAlerterService : ITeleAlerter
     {
         private readonly IAlerterService _alertservice;
+        private readonly ILogger<ITeleAlerter> _logger;
         private readonly TelegramConfig _options;
-        public TeleAlerterService(IAlerterService alertservice, IOptions<TelegramConfig> options)
+        public TeleAlerterService(IAlerterService alertservice, IOptions<TelegramConfig> options, ILogger<ITeleAlerter> logger)
         {
             _alertservice = alertservice;
             _options = options.Value;
+            _logger = logger;
         }
 
         public async Task<bool> SendTelegram(string content)
         {
-           var result =  await _alertservice.SendToTelegram(_options, content);
+            try
+            {
+                var result = await _alertservice.SendToTelegram(_options, content);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed to send message to telegram Actual Error: {ErrorMessage}", ex.ToString());
+            }
             return false;
+
         }
     }
 
