@@ -25,11 +25,11 @@ namespace AlerterService
         {
             var obj = ConvertContent(Content);
             string message = string.Empty;
-            if(obj != null)
+            if (obj != null)
             {
                 message = Formatmessage(obj);
             }
-           
+
             string uri = $"https://api.telegram.org/bot{config.Token}/sendMessage?chat_id={config.ChatId}";
 
             var json = JsonConvert.SerializeObject(new
@@ -54,14 +54,14 @@ namespace AlerterService
 
         private static ArkhamResponse? ConvertContent(string content)
         {
-           return JsonConvert.DeserializeObject<ArkhamResponse>(content);
-          
+            return JsonConvert.DeserializeObject<ArkhamResponse>(content);
+
         }
 
-        private static (string,string) SelectEmoji(string alertname)
+        private static (string, string) SelectEmoji(string alertname)
         {
-            if(string.IsNullOrEmpty(alertname)) return ("","");
-            return alertname.Contains("BUY", StringComparison.OrdinalIgnoreCase) ? ("🟢","BUY") : alertname.Contains("InFlow", StringComparison.OrdinalIgnoreCase) ? ("🟢","BUY") : ("🔴","SELL");
+            if (string.IsNullOrEmpty(alertname)) return ("", "");
+            return alertname.Contains("BUY", StringComparison.OrdinalIgnoreCase) ? ("🟢", "BUY") : alertname.Contains("InFlow", StringComparison.OrdinalIgnoreCase) ? ("🟢", "BUY") : ("🔴", "SELL");
         }
 
         private static string Formatmessage(ArkhamResponse arkhamResponse)
@@ -71,21 +71,28 @@ namespace AlerterService
 
             // string actionText = transfer?.Type.ToLower() == "buy" ? "BUY" : "SELL";
 
-            // Format addresses with Arkham-style links
-            string fromAddresses = transfer?.FromAddress?.ArkhamLabel != null
-                ? $"<a href=\"https://intel.arkm.com/explorer/address/{transfer.FromAddress.Address}\">{transfer.FromAddress.ArkhamLabel.Name}</a>"
-                : $"<code>{transfer?.FromAddress?.Address}</code>";
+            // Helper to format addresses with Arkham-style links
+            string FormatAddress(AddressInfo? addr)
+            {
+                if (addr == null) return "<code>Unknown</code>";
+                var labelName = addr.ArkhamLabel?.Name;
+                var address = addr.Address ?? "Unknown";
 
-            string toAddresses = transfer?.ToAddress?.ArkhamLabel != null
-                ? $"<a href=\"https://intel.arkm.com/explorer/address/{transfer.ToAddress.Address}\">{transfer.ToAddress.ArkhamLabel.Name}</a>"
-                : $"<code>{transfer?.ToAddress?.Address}</code>";
+                return !string.IsNullOrWhiteSpace(labelName)
+                    ? $"<a href=\"https://intel.arkm.com/explorer/address/{address}\">{labelName}</a>"
+                    : $"<code>{address}</code>";
+            }
+
+            // Format addresses with Arkham-style links
+            string fromAddresses = FormatAddress(transfer?.FromAddress);
+            string toAddresses = FormatAddress(transfer?.ToAddress);
 
             // Format value
             string valueText = $"{transfer?.UnitValue:N6} {transfer?.TokenSymbol} (${transfer?.HistoricalUSD:N2})";
 
             // Format links
             string txLink = $"<a href=\"https://intel.arkm.com/explorer/tx/{transfer?.TransactionHash}\">View on Arkham</a>";
-            string blockLink = transfer?.Chain.ToLower() == "bitcoin" 
+            string blockLink = transfer?.Chain.ToLower() == "bitcoin"
                 ? $"<a href=\"https://blockstream.info/tx/{transfer.TransactionHash}\">View on Blockstream</a>"
                 : $"<a href=\"https://etherscan.io/tx/{transfer?.TransactionHash}\">View on Etherscan</a>";
 
@@ -102,7 +109,6 @@ namespace AlerterService
             {txLink} | {blockLink} ";
 
             return messageText;
-
         }
 
 
