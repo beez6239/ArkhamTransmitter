@@ -69,23 +69,14 @@ namespace AlerterService
             var transfer = arkhamResponse.Transfer;
             var (directionEmoji, actionText) = SelectEmoji(arkhamResponse.AlertName);
 
-            // string actionText = transfer?.Type.ToLower() == "buy" ? "BUY" : "SELL";
+            //Normalize address
+            var getfromaddress = GetFromAddress(arkhamResponse.Transfer);
+            var gettoAddresses = GetToAddress(arkhamResponse.Transfer);
 
-            // Helper to format addresses with Arkham-style links
-            string FormatAddress(AddressInfo? addr)
-            {
-                if (addr == null) return "<code>Unknown</code>";
-                var labelName = addr.ArkhamLabel?.Name;
-                var address = addr.Address ?? "Unknown";
+            //format address 
+            string fromAddresses = FormatAddress(getfromaddress);
+            string toAddresses = FormatAddress(gettoAddresses);
 
-                return !string.IsNullOrWhiteSpace(labelName)
-                    ? $"<a href=\"https://intel.arkm.com/explorer/address/{address}\">{labelName}</a>"
-                    : $"<code>{address}</code>";
-            }
-
-            // Format addresses with Arkham-style links
-            string fromAddresses = FormatAddress(transfer?.FromAddress);
-            string toAddresses = FormatAddress(transfer?.ToAddress);
 
             // Format value
             string valueText = $"{transfer?.UnitValue:N6} {transfer?.TokenSymbol} (${transfer?.HistoricalUSD:N2})";
@@ -101,7 +92,7 @@ namespace AlerterService
             // Final message
             string messageText = $@"
             {directionEmoji} <b>{arkhamResponse.AlertName}</b>
-            <b>From:</b> {fromAddresses} and others
+            <b>From:</b> {fromAddresses} 
             <b>To:</b> {toAddresses}
             <b>Value:</b> {valueText}
             <b>Network:</b> {transfer?.Chain}
@@ -110,7 +101,39 @@ namespace AlerterService
 
             return messageText;
         }
+        // Helper to format addresses with Arkham-style links
+        private static string FormatAddress(List<AddressInfo?> addr)
+        {
+            if (addr?.Count == 0 || addr == null) return "<code>Unknown</code>";
+            var addcount = addr?.Count;
 
+            var address = addr?.FirstOrDefault()?.Address ?? "Unknown";
+            string addressresponse = addcount > 1 ? $"{address} and {addcount - 1} others" : address;
 
+            return addressresponse;
+        }
+
+        private static List<AddressInfo?> GetFromAddress(Transfer? transfer)
+        {
+            ArgumentNullException.ThrowIfNull(transfer);
+            if (transfer.FromAddresses != null && transfer.FromAddresses.Any())
+            {
+                return transfer.FromAddresses.Where(x => x.Address != null).Select(x => x.Address).ToList();
+            }
+            if (transfer.FromAddress != null) return [transfer.FromAddress];
+            return [];
+        }
+
+        private static List<AddressInfo?> GetToAddress(Transfer? transfer)
+        {
+            ArgumentNullException.ThrowIfNull(transfer);
+            if (transfer.ToAddresses != null && transfer.ToAddresses.Any())
+            {
+                return transfer.ToAddresses.Where(x => x.Address != null).Select(x => x.Address).ToList();
+            }
+            if (transfer.ToAddress != null) return [transfer.ToAddress];
+
+            return [];
+        }
     }
 }
