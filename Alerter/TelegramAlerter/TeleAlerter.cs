@@ -57,6 +57,11 @@ namespace Alerter.TelegramAlerter
                 var result = await alerter.SendTelegram(content);
                 return result ? Results.Ok() : Results.BadRequest();
             });
+
+            app.MapGet("/Health", () =>
+            {
+                return Results.Ok("Alive");
+            });
         }
     }
 }
