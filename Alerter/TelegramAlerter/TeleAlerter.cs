@@ -58,7 +58,7 @@ namespace Alerter.TelegramAlerter
                 return result ? Results.Ok() : Results.BadRequest();
             });
 
-            app.MapGet("/Health", () =>
+            app.MapMethods("/Health", ["GET", "HEAD"], () =>
             {
                 return Results.Ok("Alive");
             });
