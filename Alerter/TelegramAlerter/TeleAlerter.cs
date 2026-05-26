@@ -60,7 +60,7 @@ namespace Alerter.TelegramAlerter
 
             app.MapMethods("/Health", ["GET", "HEAD"], () =>
             {
-                return Results.Ok("Alive");
+                return Results.Ok("Everything is working fine!");
             });
         }
     }
