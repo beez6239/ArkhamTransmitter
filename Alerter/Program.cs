@@ -1,12 +1,14 @@
 using AlerterService;
 using Service.Models;
-using Alerter.TelegramAlerter; 
+using Alerter.TelegramAlerter;
+using Alerter.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IAlerterService, AlertService>();
 builder.Services.AddScoped<ITeleAlerter, TeleAlerterService>();
 builder.Services.AddScoped<TelegramConfig>();
+builder.Services.AddScoped<IUtility, Utiliy>();
 builder.Services.AddHttpClient();
 
 builder.Services.Configure<TelegramConfig>(builder.Configuration.GetSection("TelegramConfig"));
